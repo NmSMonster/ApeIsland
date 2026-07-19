@@ -5,152 +5,27 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#7ec8ff">
-<title>Brick Island — iPhone</title>
-<style>
-:root{--glass:rgba(11,20,31,.72);--line:rgba(255,255,255,.34)}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#7ec8ff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:none;overscroll-behavior:none}
-button{font:inherit}
-#game{position:fixed;inset:0;width:100%;height:100%;display:block;background:#7ec8ff}
-#hud{position:fixed;inset:0;z-index:5;pointer-events:none;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.48)}
-.top{position:absolute;top:max(10px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));display:flex;justify-content:space-between;align-items:center}
-.pill{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:16px;background:var(--glass);border:1px solid var(--line);font-size:14px;font-weight:900;box-shadow:0 8px 24px rgba(0,0,0,.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-.brickIcon{position:relative;width:24px;height:15px;border-radius:3px;background:#e93235;box-shadow:inset 0 -3px rgba(0,0,0,.18)}
-.brickIcon:before,.brickIcon:after{content:"";position:absolute;top:-5px;width:7px;height:6px;border-radius:50%;background:#ff5a5d;box-shadow:inset 0 -2px rgba(0,0,0,.12)}
-.brickIcon:before{left:3px}.brickIcon:after{right:3px}
-#tip{position:absolute;top:max(62px,calc(env(safe-area-inset-top) + 54px));left:50%;transform:translateX(-50%);padding:7px 12px;border-radius:12px;background:rgba(10,18,27,.62);border:1px solid rgba(255,255,255,.25);font-size:12px;font-weight:800;white-space:nowrap;transition:opacity .35s}
-#controls{position:fixed;inset:0;z-index:7;pointer-events:none}
-#joy{position:absolute;left:max(20px,calc(env(safe-area-inset-left) + 12px));bottom:max(18px,calc(env(safe-area-inset-bottom) + 10px));width:132px;height:132px;border-radius:50%;pointer-events:auto;touch-action:none;background:rgba(7,18,27,.30);border:2px solid rgba(255,255,255,.42);box-shadow:inset 0 0 0 10px rgba(255,255,255,.05),0 12px 30px rgba(0,0,0,.2)}
-#knob{position:absolute;left:43px;top:43px;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.75);border:2px solid rgba(255,255,255,.86);box-shadow:0 5px 14px rgba(0,0,0,.28)}
-#jump{position:absolute;right:max(23px,calc(env(safe-area-inset-right) + 15px));bottom:max(26px,calc(env(safe-area-inset-bottom) + 16px));width:82px;height:82px;border:2px solid rgba(255,255,255,.58);border-radius:50%;pointer-events:auto;touch-action:none;background:rgba(236,48,52,.86);color:#fff;font-weight:1000;font-size:15px;box-shadow:inset 0 -9px rgba(0,0,0,.16),0 12px 30px rgba(0,0,0,.24);text-shadow:0 2px 4px rgba(0,0,0,.35)}
-#jump:active{transform:scale(.94)}
-#look{position:absolute;right:0;top:0;width:58%;height:100%;pointer-events:auto;touch-action:none}
-#start,#win{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:22px;background:linear-gradient(rgba(3,15,26,.12),rgba(3,13,23,.68));color:#fff;text-align:center}
-.hero{width:min(430px,90vw);padding:24px 22px 21px;border-radius:26px;background:linear-gradient(145deg,rgba(17,34,48,.92),rgba(8,20,31,.86));border:1px solid rgba(255,255,255,.34);box-shadow:0 28px 90px rgba(0,0,0,.45),inset 0 1px rgba(255,255,255,.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.logo{font-size:clamp(39px,8vw,67px);line-height:.82;letter-spacing:-3px;margin:2px 0 16px;font-weight:1000;color:#ffd33e;text-shadow:0 5px 0 #b42127,0 9px 20px rgba(0,0,0,.38)}
-.hero p{margin:0 auto 18px;max-width:340px;line-height:1.4;font-size:14px;color:rgba(255,255,255,.88)}
-.hero button{border:0;border-radius:16px;padding:14px 22px;width:100%;background:linear-gradient(#ffdc48,#f4b918);color:#251800;font-size:18px;font-weight:1000;box-shadow:inset 0 -5px rgba(0,0,0,.14),0 12px 26px rgba(0,0,0,.28)}
-.hero button:active{transform:translateY(2px)}
-.hero .small{font-size:11px;opacity:.72;margin:12px 0 0}
-#win{display:none;background:rgba(4,12,20,.65);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
-#win h2{font-size:42px;margin:0 0 8px;color:#ffd43d;text-shadow:0 4px 0 #b32127}
-#rotate{display:none;position:fixed;inset:0;z-index:60;background:#0c1723;color:#fff;text-align:center;place-items:center;padding:30px}
-#rotate .r{font-size:58px}
-@media (orientation:portrait) and (max-width:850px){#rotate{display:grid}}
-@media (min-width:900px){#joy{width:145px;height:145px}#knob{left:48px;top:48px}#jump{width:90px;height:90px}}
-</style>
+<meta name="theme-color" content="#8fd8ff">
+<title>Brick Island — Pocket Adventure</title>
+<link rel="stylesheet" href="style.css">
+<script>
+window.__brickBootError=false;
+window.addEventListener('error',function(e){
+  if(String(e.message||'').toLowerCase().includes('module')||String(e.filename||'').includes('three')){
+    window.__brickBootError=true;
+    const l=document.getElementById('loading'); if(l) l.textContent='Nie udało się załadować silnika 3D. Odśwież stronę w Safari.';
+  }
+});
+</script>
 </head>
 <body>
-<canvas id="game"></canvas>
-<div id="hud">
-  <div class="top"><div class="pill"><span class="brickIcon"></span><span id="score">0 / 5</span></div><div class="pill">BRICK ISLAND</div></div>
-  <div id="tip">Zbierz 5 czerwonych klocków</div>
-</div>
-<div id="controls">
-  <div id="look" aria-label="Obracanie widoku"></div>
-  <div id="joy" aria-label="Joystick"><div id="knob"></div></div>
-  <button id="jump" aria-label="Skok">SKOK</button>
-</div>
-<div id="start">
-  <div class="hero">
-    <div class="logo">BRICK<br>ISLAND</div>
-    <p>Mała gra z klockowym światem, domkiem, drzewami, wodą i figurką. Zbierz pięć czerwonych klocków.</p>
-    <button id="play">GRAJ NA IPHONE</button>
-    <p class="small">Działa bez internetu. Obróć telefon poziomo.</p>
-  </div>
-</div>
-<div id="win"><div class="hero"><h2>UDAŁO SIĘ!</h2><p>Zebrałeś wszystkie czerwone klocki.</p><button id="again">ZAGRAJ PONOWNIE</button></div></div>
-<div id="rotate"><div><div class="r">↻</div><h2>Obróć iPhone poziomo</h2><p>Gra jest przygotowana do trybu poziomego.</p></div></div>
-<script>
-(()=>{
-'use strict';
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d',{alpha:false});
-const start=document.getElementById('start'),play=document.getElementById('play'),win=document.getElementById('win'),again=document.getElementById('again');
-const scoreEl=document.getElementById('score'),tip=document.getElementById('tip'),joy=document.getElementById('joy'),knob=document.getElementById('knob'),jumpBtn=document.getElementById('jump'),look=document.getElementById('look');
-let W=0,H=0,DPR=1,started=false,last=0,time=0,score=0,camRot=0;
-const input={x:0,y:0}, player={x:-3,z:4,y:0,vy:0,dir:0,walk:0};
-const bricks=[{x:-10,z:-4},{x:4,z:7},{x:12,z:4},{x:-5,z:13},{x:13,z:-8}];
-let collected=new Set(),joyId=null,lookId=null,lastLookX=0;
-const TILE=1.1;
-function resize(){DPR=Math.min(devicePixelRatio||1,1.7);W=innerWidth;H=innerHeight;canvas.width=Math.round(W*DPR);canvas.height=Math.round(H*DPR);canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0)}
-addEventListener('resize',resize,{passive:true});resize();
-function iso(x,y,z){
-  const a=camRot,ca=Math.cos(a),sa=Math.sin(a),dx=x-player.x*.58,dz=z-player.z*.58;
-  const rx=dx*ca-dz*sa,rz=dx*sa+dz*ca;
-  const s=Math.min(W/50,H/23)*TILE;
-  return {x:W*.5+(rx-rz)*s*.74,y:H*.50+(rx+rz)*s*.37-y*s,depth:rx+rz,scale:s};
-}
-function shade(hex,k){const n=parseInt(hex.slice(1),16),r=Math.max(0,Math.min(255,((n>>16)&255)*k)),g=Math.max(0,Math.min(255,((n>>8)&255)*k)),b=Math.max(0,Math.min(255,(n&255)*k));return `rgb(${r|0},${g|0},${b|0})`}
-function poly(points,fill,stroke){ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);for(let i=1;i<points.length;i++)ctx.lineTo(points[i].x,points[i].y);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.stroke()}}
-function brick(x,y,z,w,h,d,color,studs=true){
- const p000=iso(x-w/2,y,z-d/2),p100=iso(x+w/2,y,z-d/2),p110=iso(x+w/2,y,z+d/2),p010=iso(x-w/2,y,z+d/2);
- const t000=iso(x-w/2,y+h,z-d/2),t100=iso(x+w/2,y+h,z-d/2),t110=iso(x+w/2,y+h,z+d/2),t010=iso(x-w/2,y+h,z+d/2);
- poly([p010,p110,t110,t010],shade(color,.78));poly([p100,p110,t110,t100],shade(color,.68));poly([t000,t100,t110,t010],color,'rgba(255,255,255,.12)');
- if(studs){const nx=Math.max(1,Math.round(w)),nz=Math.max(1,Math.round(d));for(let ix=0;ix<nx;ix++)for(let iz=0;iz<nz;iz++){const sx=x-w/2+(ix+.5)*w/nx,sz=z-d/2+(iz+.5)*d/nz,p=iso(sx,y+h+.045,sz);const r=Math.max(1.5,p.scale*.14);ctx.beginPath();ctx.ellipse(p.x,p.y,r,r*.47,0,0,Math.PI*2);ctx.fillStyle=shade(color,1.12);ctx.fill();ctx.strokeStyle='rgba(0,0,0,.14)';ctx.stroke()}}
-}
-function ellipseWorld(x,y,z,rx,ry,color){const p=iso(x,y,z);ctx.beginPath();ctx.ellipse(p.x,p.y,rx*p.scale,ry*p.scale,0,0,Math.PI*2);ctx.fillStyle=color;ctx.fill()}
-function cloud(x,y,z,s){const p=iso(x,y,z);ctx.save();ctx.globalAlpha=.83;ctx.fillStyle='#fff';for(const [dx,dy,r] of [[0,0,1.2],[-1,.2,.9],[1,.15,1],[2,.35,.7]]){ctx.beginPath();ctx.arc(p.x+dx*s*14,p.y+dy*s*9,r*s*12,0,Math.PI*2);ctx.fill()}ctx.restore()}
-function background(){
- const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#71bfff');g.addColorStop(.56,'#d9f3ff');g.addColorStop(.57,'#53a8d1');g.addColorStop(1,'#176f9d');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
- ctx.fillStyle='rgba(255,255,255,.32)';ctx.beginPath();ctx.ellipse(W*.5,H*.61,W*.72,H*.12,0,0,Math.PI*2);ctx.fill();
- cloud(-14,14,-17,.9);cloud(8,18,-26,1.1);cloud(23,15,-9,.65);
- for(let i=0;i<8;i++){const x=-27+i*8,p=iso(x,-1,-30),h=(i%3+2)*18;ctx.fillStyle=i%2?'#647d80':'#758c8d';ctx.beginPath();ctx.moveTo(p.x-35,p.y);ctx.lineTo(p.x,p.y-h);ctx.lineTo(p.x+35,p.y);ctx.closePath();ctx.fill()}
-}
-function ground(){
- const c=iso(0,-.55,2);ctx.beginPath();ctx.ellipse(c.x,c.y,W*.39,H*.27,0,0,Math.PI*2);ctx.fillStyle='rgba(0,31,37,.35)';ctx.fill();
- const tiles=[];for(let x=-18;x<=18;x+=2)for(let z=-14;z<=17;z+=2){const edge=(x*x/330+z*z/260);if(edge<1.06)tiles.push({x,z,depth:iso(x,0,z).depth})}tiles.sort((a,b)=>a.depth-b.depth);
- for(const t of tiles){let col=((t.x+t.z)/2)%3===0?'#318b3e':'#2b8138';if(Math.abs(t.x-4)<3&&t.z>-10&&t.z<14)col='#c8aa6e';brick(t.x,-.28,t.z,2,.32,2,col,true)}
-}
-function house(){
- const x=11,z=-8;brick(x,0,z,9,5,7,'#c7a66d',false);brick(x,5,z,9,.5,7,'#7b4426',true);
- for(let r=0;r<5;r++){for(let i=-4;i<=4;i++){brick(x+i,5.4+r*.43,z-3.2+r*.62,1,.42,1.25,'#c62b31',true);brick(x+i,5.4+r*.43,z+3.2-r*.62,1,.42,1.25,'#c62b31',true)}}
- brick(x,0.05,z+3.58,2.2,3.4,.35,'#70401f',false);brick(x-3,2.35,z+3.6,1.7,1.7,.25,'#67bce2',false);brick(x+3,2.35,z+3.6,1.7,1.7,.25,'#67bce2',false);
- brick(x+3.2,7,z-1.2,1.2,2,1.2,'#545a5c',true);
-}
-function tree(x,z,s=1){brick(x,0,z,1.2,5*s,1.2,'#67401f',true);for(let k=0;k<3;k++){const y=3.2*s+k*1.45*s;for(let a=0;a<8;a++){const ang=a*Math.PI/4,r=(3.1-k*.62)*s;brick(x+Math.cos(ang)*r,y,z+Math.sin(ang)*r,1.5*s,.45*s,1.5*s,k? '#176b2c':'#136127',true)}}brick(x,7.3*s,z,1.3*s,.6*s,1.3*s,'#1e7632',true)}
-function flowers(){const pts=[[-13,-3,'#f33'],[-11,6,'#ffd32d'],[-2,-10,'#fff'],[5,12,'#ef4c89'],[15,5,'#f54']];for(const [x,z,c] of pts){brick(x,0,z,.25,.8,.25,'#2a7d38',false);ellipseWorld(x,.95,z,.32,.16,c);ellipseWorld(x-.25,.85,z,.25,.12,c);ellipseWorld(x+.25,.85,z,.25,.12,c)}}
-function collectible(b,i){if(collected.has(i))return;const bob=.35+Math.sin(time*3+i)*.15;brick(b.x,bob,b.z,2,.8,1.25,'#e52e32',true);const p=iso(b.x,bob+1,b.z);ctx.save();ctx.globalAlpha=.25+.12*Math.sin(time*4+i);ctx.beginPath();ctx.arc(p.x,p.y,p.scale*1.2,0,0,Math.PI*2);ctx.fillStyle='#ff4a4e';ctx.fill();ctx.restore()}
-function minifig(){
- const p=iso(player.x,player.y,player.z),s=p.scale;
- ctx.save();ctx.translate(p.x,p.y);ctx.rotate(Math.sin(player.walk)*.012);
- ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(0,5*s,.8*s,.27*s,0,0,Math.PI*2);ctx.fill();
- const bounce=Math.max(0,player.y)*s;ctx.fillStyle='#654229';roundRect(-.65*s,-1.5*s-bounce,.55*s,1.7*s,.12*s);ctx.fill();roundRect(.1*s,-1.5*s-bounce,.55*s,1.7*s,.12*s);ctx.fill();
- ctx.fillStyle='#16834a';poly2([[-.8,-3.4],[.8,-3.4],[.66,-1.35],[-.66,-1.35]],s,bounce);ctx.fillStyle='rgba(255,255,255,.15)';poly2([[-.58,-3.18],[.4,-3.18],[.25,-2.94],[-.5,-2.94]],s,bounce);
- ctx.strokeStyle='#16834a';ctx.lineWidth=.42*s;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-.68*s,-3*s-bounce);ctx.lineTo(-1.05*s,-1.95*s-bounce);ctx.moveTo(.68*s,-3*s-bounce);ctx.lineTo(1.05*s,-1.95*s-bounce);ctx.stroke();
- ctx.fillStyle='#f2bf2e';ctx.beginPath();ctx.arc(-1.08*s,-1.83*s-bounce,.25*s,0,Math.PI*2);ctx.arc(1.08*s,-1.83*s-bounce,.25*s,0,Math.PI*2);ctx.fill();
- ctx.fillStyle='#f2bf2e';roundRect(-.62*s,-4.65*s-bounce,1.24*s,1.25*s,.28*s);ctx.fill();ctx.fillStyle='#3c2415';ctx.beginPath();ctx.arc(-.23*s,-4.08*s-bounce,.08*s,0,Math.PI*2);ctx.arc(.23*s,-4.08*s-bounce,.08*s,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#3c2415';ctx.lineWidth=.07*s;ctx.beginPath();ctx.arc(0,-3.92*s-bounce,.24*s,.15,Math.PI-.15);ctx.stroke();
- ctx.fillStyle='#5a311d';ctx.beginPath();ctx.ellipse(0,-4.69*s-bounce,.7*s,.34*s,0,0,Math.PI*2);ctx.fill();ctx.restore();
-}
-function poly2(arr,s,b=0){ctx.beginPath();ctx.moveTo(arr[0][0]*s,arr[0][1]*s-b);for(let i=1;i<arr.length;i++)ctx.lineTo(arr[i][0]*s,arr[i][1]*s-b);ctx.closePath();ctx.fill()}
-function roundRect(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
-function render(){
- background();ground();
- const objects=[
-  {d:iso(11,0,-8).depth,fn:house},
-  {d:iso(-12,0,-6).depth,fn:()=>tree(-12,-6,1)},
-  {d:iso(-15,0,9).depth,fn:()=>tree(-15,9,.9)},
-  {d:iso(16,0,8).depth,fn:()=>tree(16,8,.82)},
-  {d:iso(4,0,-13).depth,fn:()=>tree(4,-13,.74)},
-  {d:iso(0,0,0).depth,fn:flowers}
- ];bricks.forEach((b,i)=>objects.push({d:iso(b.x,0,b.z).depth,fn:()=>collectible(b,i)}));objects.push({d:iso(player.x,0,player.z).depth+.1,fn:minifig});objects.sort((a,b)=>a.d-b.d);objects.forEach(o=>o.fn());
- const vg=ctx.createRadialGradient(W*.5,H*.42,Math.min(W,H)*.15,W*.5,H*.5,Math.max(W,H)*.7);vg.addColorStop(0,'rgba(255,255,255,0)');vg.addColorStop(1,'rgba(0,25,44,.25)');ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
-}
-function update(dt){if(!started)return;time+=dt;const speed=7.2;let ix=input.x,iz=input.y;if(Math.hypot(ix,iz)>.05){const a=camRot,wx=ix*Math.cos(a)+iz*Math.sin(a),wz=-ix*Math.sin(a)+iz*Math.cos(a);player.x+=wx*speed*dt;player.z+=wz*speed*dt;player.dir=Math.atan2(wx,wz);player.walk+=dt*10;tip.style.opacity='0'}
- const q=player.x*player.x/330+player.z*player.z/260;if(q>1){const k=1/Math.sqrt(q);player.x*=k;player.z*=k}
- player.vy-=17*dt;player.y+=player.vy*dt;if(player.y<0){player.y=0;player.vy=0}
- bricks.forEach((b,i)=>{if(!collected.has(i)&&Math.hypot(player.x-b.x,player.z-b.z)<2){collected.add(i);score=collected.size;scoreEl.textContent=score+' / 5';if(score===5)setTimeout(()=>{win.style.display='grid';started=false},250)}})
-}
-function loop(t){const dt=Math.min(.034,(t-last)/1000||0);last=t;update(dt);render();requestAnimationFrame(loop)}requestAnimationFrame(loop);
-function startGame(){start.style.display='none';win.style.display='none';started=true;last=performance.now();tip.style.opacity='1'}
-function reset(){score=0;collected.clear();scoreEl.textContent='0 / 5';player.x=-3;player.z=4;player.y=0;player.vy=0;startGame()}
-play.addEventListener('click',startGame);play.addEventListener('touchend',e=>{e.preventDefault();startGame()},{passive:false});again.addEventListener('click',reset);again.addEventListener('touchend',e=>{e.preventDefault();reset()},{passive:false});
-function joyMove(e){const r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,max=r.width*.31,m=Math.hypot(dx,dy)||1,k=Math.min(1,max/m);input.x=dx/max*k;input.y=dy/max*k;knob.style.transform=`translate(${dx*k}px,${dy*k}px)`}
-joy.addEventListener('pointerdown',e=>{e.preventDefault();joyId=e.pointerId;joy.setPointerCapture?.(e.pointerId);joyMove(e)});joy.addEventListener('pointermove',e=>{if(e.pointerId===joyId)joyMove(e)});function joyUp(e){if(e.pointerId!==joyId)return;joyId=null;input.x=input.y=0;knob.style.transform='translate(0,0)'}joy.addEventListener('pointerup',joyUp);joy.addEventListener('pointercancel',joyUp);
-look.addEventListener('pointerdown',e=>{lookId=e.pointerId;lastLookX=e.clientX;look.setPointerCapture?.(e.pointerId)});look.addEventListener('pointermove',e=>{if(e.pointerId!==lookId)return;camRot+=(e.clientX-lastLookX)*.006;lastLookX=e.clientX});look.addEventListener('pointerup',e=>{if(e.pointerId===lookId)lookId=null});look.addEventListener('pointercancel',()=>lookId=null);
-function jump(){if(started&&player.y<.02){player.vy=8.3}}jumpBtn.addEventListener('pointerdown',e=>{e.preventDefault();jump()});
-document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
-})();
-</script>
+<canvas id="game"></canvas><div id="vignette"></div>
+<div id="hud"><div class="topbar"><div class="pill"><span class="brickIcon"></span><span id="score">0 / 6</span></div><div id="quest" class="pill"><div><strong>Znajdź złote klocki</strong><span>Rozsiane po całej wyspie</span></div></div></div></div>
+<div id="controls"><div id="stickZone"><div id="stickBase"><div id="stickKnob"></div></div></div><button id="jump" aria-label="Skok">SKOK</button><div id="lookHint">Przeciągaj po prawej stronie, aby obracać kamerę</div></div>
+<div id="menu"><div class="card"><div class="logo" aria-hidden="true"><span>B</span><span>R</span><span>I</span><span>C</span><span>K</span><span>!</span></div><h1>Brick Island<small>Pocket Adventure</small></h1><p class="lead">Mała wyspa zbudowana z błyszczących klocków. Zwiedzaj, skacz i znajdź wszystkie złote elementy.</p><button id="start" class="play">GRAJ</button><div class="tips"><span><i class="dot"></i> joystick — ruch</span><span><i class="dot"></i> prawa strona — kamera</span><span><i class="dot"></i> przycisk — skok</span></div><div id="loading">Buduję wyspę…</div></div></div>
+<div id="win" class="hidden"><div class="card"><div class="logo" aria-hidden="true"><span>★</span><span>★</span><span>★</span></div><h2>Wyspa ukończona!</h2><p>Znalazłeś wszystkie złote klocki.</p><button id="again" class="play">ZAGRAJ PONOWNIE</button></div></div>
+<div id="toast">Złoty klocek!</div>
+<div id="rotate"><div><div class="phone"></div>Obróć iPhone’a poziomo,<br>aby rozpocząć przygodę.</div></div>
+<script type="module" src="game.js"></script>
 </body>
 </html>
