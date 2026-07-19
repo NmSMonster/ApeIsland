@@ -1,0 +1,32 @@
+ const face=new THREE.Mesh(new THREE.PlaneGeometry(.62,.31),new THREE.MeshBasicMaterial({map:faceTexture(),transparent:true,depthWrite:false}));face.position.set(0,2.5,-.383);face.rotation.y=Math.PI;root.add(face);
+ // hair made of molded brick forms
+ const hairMat=mat(P.darkBrown,{rough:.28,clear:.38});const cap=new THREE.Mesh(new THREE.SphereGeometry(.405,24,12,0,Math.PI*2,0,Math.PI*.5),hairMat);cap.position.y=2.84;cap.castShadow=true;root.add(cap);for(let i=-2;i<=2;i++){const lock=new THREE.Mesh(roundedGeom(.19,.28,.18,.055),hairMat);lock.position.set(i*.15,2.78,-.32-Math.abs(i)*.018);lock.rotation.z=i*.1;lock.castShadow=true;root.add(lock)}
+ root.position.set(0,.5,8.3);scene.add(root);return{root,legs,arms,shadow};}
+const player=buildPlayer();
+
+// Collectibles
+const collectiblePositions=[[-5.8,.95,6.9],[10.3,.95,7.2],[-11.1,.95,-3.3],[9.5,.95,-8.6],[-1.8,.95,-11.2],[5.0,1.05,-1.8]];
+const collectibles=[];const glowTex=circleTexture('#ffd72e');
+collectiblePositions.forEach((p,i)=>{const g=new THREE.Group();const b=dynamicBrick(.78,.28,.78,P.gold,2,2);g.add(b);const ring=new THREE.Mesh(new THREE.TorusGeometry(.72,.035,8,36),new THREE.MeshBasicMaterial({color:0xffe862,transparent:true,opacity:.64,blending:THREE.AdditiveBlending,depthWrite:false}));ring.rotation.x=Math.PI/2;g.add(ring);const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:0xffd52a,transparent:true,opacity:.62,depthWrite:false,blending:THREE.AdditiveBlending}));glow.scale.set(2.5,2.5,1);g.add(glow);g.position.set(...p);g.userData={baseY:p[1],phase:i*.8,collected:false};scene.add(g);collectibles.push(g)});
+
+const particles=[];function burst(pos){for(let i=0;i<18;i++){const m=new THREE.Mesh(roundedGeom(.11,.11,.11,.025),mat(i%2?P.gold:P.white,{rough:.3,emissive:P.gold,emissiveIntensity:.5}));m.position.copy(pos);m.userData.v=new THREE.Vector3((Math.random()-.5)*4,1.8+Math.random()*3,(Math.random()-.5)*4);m.userData.life=.7+Math.random()*.45;scene.add(m);particles.push(m)}}
+let toastTimer;function showToast(){toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),900)}
+
+// Input
+const joystick={x:0,y:0,id:null};const stickZone=document.getElementById('stickZone'),stickKnob=document.getElementById('stickKnob');
+function stickMove(e){const rect=document.getElementById('stickBase').getBoundingClientRect();const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;let dx=e.clientX-cx,dy=e.clientY-cy;const r=38,d=Math.hypot(dx,dy)||1;if(d>r){dx=dx/d*r;dy=dy/d*r}joystick.x=dx/r;joystick.y=-dy/r;stickKnob.style.transform=`translate(${dx}px,${dy}px)`}
+stickZone.addEventListener('pointerdown',e=>{joystick.id=e.pointerId;stickZone.setPointerCapture(e.pointerId);stickMove(e);e.preventDefault()});stickZone.addEventListener('pointermove',e=>{if(e.pointerId===joystick.id)stickMove(e)});function endStick(e){if(e.pointerId!==joystick.id)return;joystick.id=null;joystick.x=joystick.y=0;stickKnob.style.transform='translate(0,0)'}stickZone.addEventListener('pointerup',endStick);stickZone.addEventListener('pointercancel',endStick);
+let lookId=null,lastLookX=0,lastLookY=0,cameraYaw=0,cameraPitch=.34;
+canvas.addEventListener('pointerdown',e=>{if(!running||e.clientX<innerWidth*.42)return;lookId=e.pointerId;lastLookX=e.clientX;lastLookY=e.clientY;canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(e.pointerId!==lookId)return;const dx=e.clientX-lastLookX,dy=e.clientY-lastLookY;lastLookX=e.clientX;lastLookY=e.clientY;cameraYaw-=dx*.006;cameraPitch=THREE.MathUtils.clamp(cameraPitch-dy*.004,-.04,.78)});canvas.addEventListener('pointerup',e=>{if(e.pointerId===lookId)lookId=null});canvas.addEventListener('pointercancel',e=>{if(e.pointerId===lookId)lookId=null});
+const keys={};addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='Space')jump()});addEventListener('keyup',e=>keys[e.code]=false);
+let vertical=0,onGround=true;function jump(){if(!running||!onGround)return;vertical=5.8;onGround=false;beep(500,.055,.055);jumpBtn.classList.add('pressed');setTimeout(()=>jumpBtn.classList.remove('pressed'),110)}jumpBtn.addEventListener('pointerdown',e=>{e.preventDefault();jump()});
+
+let audioCtx=null;function beep(freq=500,dur=.06,gain=.04){try{audioCtx??=new (window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=freq;g.gain.setValueAtTime(gain,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+dur);o.connect(g).connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur)}catch{}}
+
+let running=false,collected=0,finished=false;let pos=new THREE.Vector3(0,.5,8.3),velocity=new THREE.Vector3(),heading=0;
+function startGame(){if(running)return;running=true;menu.classList.add('hidden');hud.classList.add('on');controlsEl.classList.add('on');audioCtx??=new (window.AudioContext||window.webkitAudioContext)();audioCtx.resume?.();document.documentElement.requestFullscreen?.().catch(()=>{});screen.orientation?.lock?.('landscape').catch(()=>{});beep(420,.08,.04)}
+startBtn.addEventListener('click',startGame);startBtn.addEventListener('pointerup',e=>{e.preventDefault();startGame()});again.addEventListener('click',()=>location.reload());
+loading.textContent='Gotowe — dotknij GRAJ';startBtn.disabled=false;
+
+function resetWorld(){collected=0;scoreEl.textContent='0 / 6';collectibles.forEach(c=>{c.visible=true;c.userData.collected=false});pos.set(0,.5,8.3);velocity.set(0,0,0);finished=false;win.classList.add('hidden')}
+function updatePlayer(dt,time){
