@@ -1,0 +1,23 @@
+ let ix=joystick.x+(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0);let iy=joystick.y+(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0);const len=Math.hypot(ix,iy);if(len>1){ix/=len;iy/=len}
+ const camForward=new THREE.Vector3(-Math.sin(cameraYaw),0,-Math.cos(cameraYaw));const camRight=new THREE.Vector3(Math.cos(cameraYaw),0,-Math.sin(cameraYaw));const desired=camForward.multiplyScalar(iy).add(camRight.multiplyScalar(ix));const moving=desired.lengthSq()>.012;
+ if(moving){desired.normalize();velocity.lerp(desired.multiplyScalar(4.25),1-Math.exp(-dt*9));const targetHeading=Math.atan2(velocity.x,-velocity.z);let diff=Math.atan2(Math.sin(targetHeading-heading),Math.cos(targetHeading-heading));heading+=diff*Math.min(1,dt*12)}else velocity.multiplyScalar(Math.exp(-dt*8));
+ pos.x+=velocity.x*dt;pos.z+=velocity.z*dt;const r=Math.hypot(pos.x,pos.z);if(r>13.45){pos.x*=13.45/r;pos.z*=13.45/r;velocity.multiplyScalar(.15)}
+ vertical-=13.5*dt;pos.y+=vertical*dt;if(pos.y<=.5){pos.y=.5;vertical=0;onGround=true}else onGround=false;
+ player.root.position.copy(pos);player.root.rotation.y=heading;
+ const speed=Math.min(1,velocity.length()/4.25);const cycle=time*9;player.legs[0].rotation.x=Math.sin(cycle)*.62*speed;player.legs[1].rotation.x=-Math.sin(cycle)*.62*speed;player.arms[0].rotation.x=-Math.sin(cycle)*.55*speed;player.arms[1].rotation.x=Math.sin(cycle)*.55*speed;player.root.rotation.z=Math.sin(cycle)*.025*speed;player.shadow.material.opacity=.25*(1-Math.min(.65,(pos.y-.5)*.22));player.shadow.scale.setScalar(1+Math.min(.4,(pos.y-.5)*.18));
+}
+function updateCamera(dt){const dist=7.6;const height=3.25+cameraPitch*4.2;const horizontal=dist*Math.cos(cameraPitch*.55);const desired=new THREE.Vector3(pos.x+Math.sin(cameraYaw)*horizontal,pos.y+height,pos.z+Math.cos(cameraYaw)*horizontal);camera.position.lerp(desired,1-Math.exp(-dt*6.5));const target=new THREE.Vector3(pos.x,pos.y+1.6,pos.z);camera.lookAt(target)}
+function collectCheck(){for(const c of collectibles){if(c.userData.collected)continue;if(c.position.distanceTo(player.root.position)<1.25){c.userData.collected=true;c.visible=false;collected++;scoreEl.textContent=`${collected} / ${collectibles.length}`;burst(c.position);showToast();beep(760,.12,.06);setTimeout(()=>beep(1040,.1,.04),70);if(collected===collectibles.length)setTimeout(finish,700)}}}
+function finish(){if(finished)return;finished=true;running=false;controlsEl.classList.remove('on');win.classList.remove('hidden');beep(523,.16,.05);setTimeout(()=>beep(659,.16,.05),130);setTimeout(()=>beep(784,.25,.055),260)}
+
+const clock=new THREE.Clock();let elapsed=0;
+function animate(){requestAnimationFrame(animate);const dt=Math.min(.033,clock.getDelta());elapsed+=dt;waterMat.uniforms.uTime.value=elapsed;
+ clouds.forEach((c,i)=>{c.position.x+=dt*(.16+i*.03);if(c.position.x>32)c.position.x=-32});
+ collectibles.forEach(c=>{if(c.userData.collected)return;c.position.y=c.userData.baseY+Math.sin(elapsed*2+c.userData.phase)*.17;c.rotation.y+=dt*.85;c.children[1].rotation.z+=dt*.45});
+ for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.userData.life-=dt;p.userData.v.y-=7*dt;p.position.addScaledVector(p.userData.v,dt);p.rotation.x+=dt*7;p.rotation.y+=dt*9;p.scale.setScalar(Math.max(.01,p.userData.life));if(p.userData.life<=0){scene.remove(p);particles.splice(i,1)}}
+ if(running){updatePlayer(dt,elapsed);collectCheck()}else if(!finished){player.root.rotation.y=Math.sin(elapsed*.45)*.18}
+ updateCamera(dt);renderer.render(scene,camera)}
+updateCamera(1);animate();
+
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio,lowPower?1.45:1.85));renderer.setSize(innerWidth,innerHeight,false)});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){joystick.x=joystick.y=0;stickKnob.style.transform='translate(0,0)'}});
