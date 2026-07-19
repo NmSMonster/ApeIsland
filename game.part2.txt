@@ -1,0 +1,35 @@
+const skyGeo=new THREE.SphereGeometry(110,32,18);const skyMat=new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,uniforms:{top:{value:new THREE.Color(0x4eaff1)},bottom:{value:new THREE.Color(0xe9f8ff)},offset:{value:20},exponent:{value:.72}},vertexShader:`varying vec3 vWorld;void main(){vec4 w=modelMatrix*vec4(position,1.);vWorld=w.xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,fragmentShader:`uniform vec3 top;uniform vec3 bottom;uniform float offset;uniform float exponent;varying vec3 vWorld;void main(){float h=normalize(vWorld+vec3(0.,offset,0.)).y;gl_FragColor=vec4(mix(bottom,top,max(pow(max(h,0.),exponent),0.)),1.);}`});scene.add(new THREE.Mesh(skyGeo,skyMat));
+const sunSprite=new THREE.Sprite(new THREE.SpriteMaterial({map:circleTexture('#fff7c2'),transparent:true,opacity:.7,depthWrite:false,blending:THREE.AdditiveBlending}));sunSprite.scale.set(11,11,1);sunSprite.position.set(-38,38,-65);scene.add(sunSprite);
+function circleTexture(color){const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');const g=x.createRadialGradient(64,64,2,64,64,62);g.addColorStop(0,color);g.addColorStop(.45,color);g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,128,128);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+function cloud(x,y,z,s=.9){const g=new THREE.Group();[[0,0,0,2.4,1.2,1.1],[-1.3,-.15,.1,1.7,.9,.9],[1.45,-.18,0,1.9,1,1],[.35,.35,0,1.65,1.15,1]].forEach(p=>{const m=new THREE.Mesh(roundedGeom(p[3]*s,p[4]*s,p[5]*s,.35*s,3),mat(P.white,{rough:.42,clear:.2}));m.position.set(p[0]*s,p[1]*s,p[2]*s);g.add(m)});g.position.set(x,y,z);scene.add(g);return g}
+const clouds=[cloud(-18,18,-35,1.2),cloud(18,15,-28,.9),cloud(3,22,-45,1.05)];
+
+// Water
+const waterGeo=new THREE.PlaneGeometry(125,125,70,70);waterGeo.rotateX(-Math.PI/2);
+const waterMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{uTime:{value:0},uDeep:{value:new THREE.Color(0x087db1)},uShallow:{value:new THREE.Color(0x4ed1df)}},vertexShader:`uniform float uTime;varying float vWave;varying vec3 vWorld;void main(){vec3 p=position;float w=sin(p.x*.23+uTime*1.2)*.10+sin(p.z*.31-uTime*.85)*.075+sin((p.x+p.z)*.12+uTime*.55)*.06;p.y+=w;vWave=w;vec4 world=modelMatrix*vec4(p,1.);vWorld=world.xyz;gl_Position=projectionMatrix*viewMatrix*world;}`,fragmentShader:`uniform vec3 uDeep;uniform vec3 uShallow;varying float vWave;varying vec3 vWorld;void main(){vec3 V=normalize(cameraPosition-vWorld);float fres=pow(1.-max(V.y,0.),2.);float band=.5+.5*sin((vWorld.x+vWorld.z)*.8+vWave*24.);vec3 col=mix(uDeep,uShallow,.38+vWave*1.4);col+=band*.035;col=mix(col,vec3(.75,.94,1.),fres*.38);gl_FragColor=vec4(col,.88);}`});const water=new THREE.Mesh(waterGeo,waterMat);water.position.y=-.38;scene.add(water);
+
+// Island base and studded top
+const base=new THREE.Mesh(new THREE.CylinderGeometry(15.3,16.2,1.15,64),mat(P.soil,{rough:.55,clear:.12}));base.position.y=-.43;base.receiveShadow=true;base.castShadow=true;scene.add(base);
+const topPlate=new THREE.Mesh(new THREE.CylinderGeometry(15.15,15.25,.34,64),mat(P.grass,{rough:.28,clear:.43}));topPlate.position.y=.315;topPlate.receiveShadow=true;topPlate.castShadow=true;scene.add(topPlate);
+function inPath(x,z){const curveX=1.1*Math.sin((z-1)*.17);return z>-8&&z<12&&Math.abs(x-curveX)<1.25}
+const grassColors=[P.grass,P.grass2,P.grassDark];for(let x=-14;x<=14;x+=.72)for(let z=-14;z<=14;z+=.72){if(x*x+z*z<13.95*13.95&&!inPath(x,z)){const n=Math.abs(Math.sin(x*12.31+z*4.77));staticStud(grassColors[Math.floor(n*3)%3],x,.49,z,.98)}}
+// Path made of plates
+for(let z=-7.5;z<=11;z+=1.45){const x=1.1*Math.sin((z-1)*.17);staticBox(x,.52,z,2.25,.12,1.4,(Math.round(z*10)%2?P.tan:P.tan2),{studsX:3,studsZ:2,studScale:.95,r:.04})}
+
+// House
+const hx=4.9,hz=-5.2;staticBox(hx,.56,hz,7.2,.3,5.5,P.grey,{studsX:10,studsZ:8,r:.05});
+const wallColors=[P.cream,P.tan2,P.yellow];
+for(let row=0;row<5;row++){
+ const y=.9+row*.52;const off=(row%2)*.62;
+ for(let x=-3;x<=3;x+=1.25){if(Math.abs(x)<.65&&row<4)continue;staticBox(hx+x+off%1.25,y,hz+2.42,1.18,.48,.48,wallColors[(row+Math.floor(x+3))%wallColors.length],{studsX:2,studsZ:1,r:.055})}
+ for(let x=-3;x<=3;x+=1.25){staticBox(hx+x+(off%1.25),y,hz-2.42,1.18,.48,.48,wallColors[(row+1+Math.floor(x+3))%wallColors.length],{studsX:2,studsZ:1,r:.055})}
+ for(let z=-1.8;z<=1.8;z+=1.2){staticBox(hx-3.35,y,hz+z+(off%1.2),.48,.48,1.12,wallColors[(row+Math.floor(z+2))%wallColors.length],{studsX:1,studsZ:2,r:.055});staticBox(hx+3.35,y,hz+z+(off%1.2),.48,.48,1.12,wallColors[(row+1+Math.floor(z+2))%wallColors.length],{studsX:1,studsZ:2,r:.055})}
+}
+// Door and windows
+staticBox(hx,1.48,hz+2.7,1.25,1.85,.18,P.blue,{r:.08});staticBox(hx,2.08,hz+2.81,.86,.54,.08,P.glass,{r:.04,cast:false});
+for(const wx of [-2.05,2.05]){staticBox(hx+wx,1.75,hz+2.7,1.25,1.15,.17,P.white,{r:.05});staticBox(hx+wx,1.75,hz+2.81,.94,.84,.07,P.glass,{r:.035,cast:false});staticBox(hx+wx,1.75,hz+2.87,.08,.84,.04,P.white,{r:.02,cast:false});staticBox(hx+wx,1.75,hz+2.87,.94,.08,.04,P.white,{r:.02,cast:false})}
+// Front gable and compact roof
+staticBox(hx,3.28,hz+2.43,4.65,.34,.44,P.cream,{studsX:7,studsZ:1,r:.05});
+staticBox(hx,3.62,hz+2.43,3.25,.34,.44,P.tan2,{studsX:5,studsZ:1,r:.05});
+staticBox(hx,3.96,hz+2.43,1.72,.34,.44,P.cream,{studsX:3,studsZ:1,r:.05});
+const roofL=staticBox(hx-1.54,3.64,hz,3.74,.32,5.72,P.red,{rotZ:-.49,r:.075});const roofR=staticBox(hx+1.54,3.64,hz,3.74,.32,5.72,P.red,{rotZ:.49,r:.075});
