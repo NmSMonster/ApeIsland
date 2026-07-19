@@ -1,0 +1,59 @@
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.min.js';
+
+const canvas=document.getElementById('game');
+const menu=document.getElementById('menu');
+const startBtn=document.getElementById('start');
+const loading=document.getElementById('loading');
+const hud=document.getElementById('hud');
+const controlsEl=document.getElementById('controls');
+const scoreEl=document.getElementById('score');
+const toast=document.getElementById('toast');
+const win=document.getElementById('win');
+const again=document.getElementById('again');
+const jumpBtn=document.getElementById('jump');
+
+const scene=new THREE.Scene();
+scene.fog=new THREE.FogExp2(0x9bdcff,0.017);
+const camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,.08,160);
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
+const mobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+const lowPower=mobile||((navigator.deviceMemory||8)<=4);
+renderer.setPixelRatio(Math.min(devicePixelRatio,lowPower?1.45:1.85));
+renderer.setSize(innerWidth,innerHeight,false);
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.08;
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+
+const hemi=new THREE.HemisphereLight(0xcdeeff,0x5d713e,2.0);scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xfff4d5,3.2);sun.position.set(-13,21,12);sun.castShadow=true;
+sun.shadow.mapSize.set(lowPower?1024:2048,lowPower?1024:2048);sun.shadow.camera.left=-24;sun.shadow.camera.right=24;sun.shadow.camera.top=24;sun.shadow.camera.bottom=-24;sun.shadow.camera.near=.5;sun.shadow.camera.far=60;sun.shadow.bias=-.00035;scene.add(sun);
+const fill=new THREE.DirectionalLight(0x8ccaff,.75);fill.position.set(13,8,-12);scene.add(fill);
+
+const P={grass:0x54a83f,grass2:0x70bd49,grassDark:0x34843a,soil:0x6d4329,tan:0xd8b477,tan2:0xf0d69a,cream:0xf2dfb4,yellow:0xf8c928,red:0xd93832,redDark:0xa91d23,blue:0x1975c5,sky:0x8fd8ff,glass:0x76c8ed,brown:0x6b3b23,darkBrown:0x342015,grey:0x8b9297,darkGrey:0x59636b,white:0xf7f6ec,black:0x1d252a,gold:0xffc400,skin:0xf1b233,leaf:0x3d973e,leaf2:0x60b84f};
+const materialCache=new Map();
+function mat(color,{rough=.22,metal=.02,clear=.55,emissive=0,emissiveIntensity=0,transparent=false,opacity=1,side=THREE.FrontSide}={}){
+ const key=[color,rough,metal,clear,emissive,emissiveIntensity,transparent,opacity,side].join('|');
+ if(!materialCache.has(key))materialCache.set(key,new THREE.MeshPhysicalMaterial({color,roughness:rough,metalness:metal,clearcoat:clear,clearcoatRoughness:.18,emissive,emissiveIntensity,transparent,opacity,side}));
+ return materialCache.get(key);
+}
+const geomCache=new Map();
+function roundedGeom(w,h,d,r=.08,bevel=2){
+ const key=[w,h,d,r,bevel].join('|'); if(geomCache.has(key))return geomCache.get(key);
+ const rr=Math.min(r,w*.2,h*.2);const s=new THREE.Shape();
+ s.moveTo(-w/2+rr,-h/2);s.lineTo(w/2-rr,-h/2);s.quadraticCurveTo(w/2,-h/2,w/2,-h/2+rr);s.lineTo(w/2,h/2-rr);s.quadraticCurveTo(w/2,h/2,w/2-rr,h/2);s.lineTo(-w/2+rr,h/2);s.quadraticCurveTo(-w/2,h/2,-w/2,h/2-rr);s.lineTo(-w/2,-h/2+rr);s.quadraticCurveTo(-w/2,-h/2,-w/2+rr,-h/2);
+ const g=new THREE.ExtrudeGeometry(s,{depth:Math.max(.001,d-rr*2),bevelEnabled:true,bevelSegments:bevel,steps:1,bevelSize:rr,bevelThickness:rr,curveSegments:4});g.translate(0,0,-d/2+rr);g.computeVertexNormals();geomCache.set(key,g);return g;
+}
+const studGeom=new THREE.CylinderGeometry(.16,.16,.115,16,1,false);studGeom.translate(0,.0575,0);
+const studBatches=new Map();
+function staticStud(color,x,y,z,scale=1){const k=String(color);if(!studBatches.has(k))studBatches.set(k,[]);studBatches.get(k).push({x,y,z,scale});}
+function staticBox(x,y,z,w,h,d,color,{rotY=0,rotZ=0,studsX=0,studsZ=0,studScale=1,receive=true,cast=true,r=.065}={}){
+ const mesh=new THREE.Mesh(roundedGeom(w,h,d,r),mat(color));mesh.position.set(x,y,z);mesh.rotation.y=rotY;mesh.rotation.z=rotZ;mesh.castShadow=cast;mesh.receiveShadow=receive;scene.add(mesh);
+ if(studsX&&studsZ&&rotY===0&&rotZ===0){for(let ix=0;ix<studsX;ix++)for(let iz=0;iz<studsZ;iz++){const sx=x+(ix-(studsX-1)/2)*(w/studsX);const sz=z+(iz-(studsZ-1)/2)*(d/studsZ);staticStud(color,sx,y+h/2+.005,sz,studScale)}}
+ return mesh;
+}
+function dynamicBrick(w,h,d,color,sx=2,sz=2){const g=new THREE.Group();const body=new THREE.Mesh(roundedGeom(w,h,d,.07),mat(color));body.castShadow=true;body.receiveShadow=true;g.add(body);for(let x=0;x<sx;x++)for(let z=0;z<sz;z++){const st=new THREE.Mesh(studGeom,mat(color));st.position.set((x-(sx-1)/2)*(w/sx),h/2,(z-(sz-1)/2)*(d/sz));st.castShadow=true;g.add(st)}return g;}
+function flushStuds(){for(const [k,arr] of studBatches){const inst=new THREE.InstancedMesh(studGeom,mat(Number(k)),arr.length);inst.castShadow=true;inst.receiveShadow=true;const dummy=new THREE.Object3D();arr.forEach((p,i)=>{dummy.position.set(p.x,p.y,p.z);dummy.scale.setScalar(p.scale);dummy.updateMatrix();inst.setMatrixAt(i,dummy.matrix)});scene.add(inst)}}
+
+// Sky
